@@ -41,7 +41,7 @@ chaosworld::chaosworld(int v, int f) {
 // returns a randomly positioned point
 sf::CircleShape chaosworld::tracer_create() {
     sf::CircleShape t(1);
-    t.setFillColor(sf::Color(255, 255, 255));
+    t.setFillColor(sf::Color(255, 255, 255));   // white
     t.setPosition(random(SIZE_X-BORDER), random(SIZE_Y-BORDER));
     return t;
 }
@@ -51,7 +51,7 @@ std::vector<sf::CircleShape> chaosworld::vertices_create(int v) {
     std::vector<sf::CircleShape> output;
     for (; v > 0; --v) {
         sf::CircleShape shape(5);
-        shape.setFillColor(sf::Color(255, 0, 255)); // white
+        shape.setFillColor(sf::Color(255, 0, 255)); // purple
         shape.setPosition(random(SIZE_X-BORDER), random(SIZE_Y-BORDER));
         output.push_back(shape);
     }

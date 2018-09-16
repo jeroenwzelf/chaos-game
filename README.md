@@ -8,3 +8,9 @@ For more information on why this simple algorithm creates beautifull fractals, s
 
 This method is also fun to do yourself using a piece of paper and a marker.
 Using three vertices will produce a nice fractal most of the time.
+
+# Installing
+This program uses the SFML library, so in order to build the program yourself, you need to have the package
+libsfml-dev installed on your machine.
+After you have built the program, you can run it in a terminal by using:
+./chaos #vertices #frames, where #vertices is the size of the set of random vertices, and #frames is the amount of times the program repeats the last step of the algorithm as described above.
