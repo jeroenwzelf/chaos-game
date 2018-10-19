@@ -4,13 +4,7 @@
 #include <string>
 #include <cstdlib>				// srand
 #include <time.h>				// setting srand seed
-#include <unistd.h>				// usleep
 #include <SFML/Graphics.hpp>	// drawing graphics
-
-// window settings
-static const int SIZE_X = 800;
-static const int SIZE_Y = 600;
-static const int BORDER = 50;
 
 int random(int s) { return (rand() % s); }
 
@@ -23,11 +17,10 @@ class chaosworld {
         sf::CircleShape tracer_create();
         void tracer_update();
     private:
-        int FRAME;
-        int FRAME_STOP;
-        std::vector<sf::CircleShape> vertices;
-        std::vector<sf::CircleShape> tracer_history;
+        int FRAME, FRAME_STOP;
         sf::CircleShape tracer;
+        std::vector<sf::CircleShape> vertices, tracer_history;
+        static const int SIZE_X = 800, SIZE_Y = 600, BORDER = 50; // window settings
 };
 
 chaosworld::chaosworld(int v, int f) {
@@ -78,23 +71,22 @@ void chaosworld::draw() {
     font.loadFromFile("Ubuntu-C.ttf");
     frametxt.setFont(font);
     frametxt.setCharacterSize(20);
-    frametxt.setPosition(760, 10);
+    frametxt.setPosition(SIZE_X-BORDER, 10);
 
     // draw window
     sf::RenderWindow window(sf::VideoMode(SIZE_X, SIZE_Y), "Chaos Game");
     while (window.isOpen()) {
     /* close window request check */
         sf::Event event;
-        while (window.pollEvent(event)) {
+        while (window.pollEvent(event))
             if (event.type == sf::Event::Closed) window.close();
-        }
     /* draw objects in window */
         window.clear(sf::Color::Black);
         for (auto i : vertices) window.draw(i);
         for (auto i : tracer_history) window.draw(i);
         window.draw(frametxt);
     /* update world */
-        if (FRAME < FRAME_STOP) {
+        if (FRAME_STOP == 0 || FRAME < FRAME_STOP) {
             window.draw(tracer);
             tracer_update();
             frametxt.setString(std::to_string(++FRAME));
@@ -109,10 +101,8 @@ int main(int argc, char* argv[]) {
         return 1;  
     }
 
-    std::istringstream ss1(argv[1]);
-    std::istringstream ss2(argv[2]);
-
     int v, f;
+    std::istringstream ss1(argv[1]), ss2(argv[2]);
     if ( !(ss1 >> v) || v < 0 ) {
         std::cout << "Invalid #vertices." << '\n';
         return 1;
