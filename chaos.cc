@@ -29,10 +29,13 @@ class chaosworld {
             // draw window
             sf::RenderWindow window(sf::VideoMode(SIZE_X, SIZE_Y), "Chaos Game");
             while (window.isOpen()) {
-            /* close window request check */
                 sf::Event event;
-                while (window.pollEvent(event))
-                    if (event.type == sf::Event::Closed) window.close();
+                while (window.pollEvent(event)) {
+                    if (event.type == sf::Event::Closed ||
+                        (event.type == sf::Event::KeyPressed
+                            && (event.key.code == sf::Keyboard::Escape || event.key.code == sf::Keyboard::Q) ))
+                        window.close();
+                }
             /* draw objects in window */
                 window.clear(sf::Color::Black);
                 for (auto i : vertices) window.draw(i);
@@ -79,20 +82,26 @@ class chaosworld {
 };
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cout << "Use: " << argv[0] << " <#vertices> <#frames>" << std::endl;
-        return 1;  
-    }
+    unsigned v = 3, f = 0;
 
-    unsigned v, f;
-    std::istringstream ss1(argv[1]), ss2(argv[2]);
-    if ( !(ss1 >> v) || v < 0 ) {
-        std::cout << "Invalid #vertices." << '\n';
-        return 1;
-    }
-    if ( !(ss2 >> f) || f < 0 ) {
-    	std::cout << "Invalid #frames. " << '\n';
-        return 1;
+    switch(argc) {
+        case 1: break;
+        case 3: {
+            if ( !(std::istringstream(argv[2]) >> f) || f < 0 ) {
+                std::cout << "Invalid #frames. " << '\n';
+                return 1;
+            }
+        }
+        case 2: {
+            if ( !(std::istringstream(argv[2]) >> v) || v < 0 ) {
+                std::cout << "Invalid #vertices." << '\n';
+                return 1;
+            }
+        }
+        break;
+        default:
+            std::cout << "Use: " << argv[0] << " <#vertices> <#frames>" << std::endl;
+            return 1;  
     }
 
     chaosworld c(v, f);
