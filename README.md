@@ -1,4 +1,6 @@
 # Chaos Game
+![Chaos Game preview](/Chaos_3-2048.png)
+
 In short, a Chaos Game creates fractals using the following method:
 * Draw a set of vertices placed at random in a 2D space.
 * Draw a dot at a random point on the 2D surface.
