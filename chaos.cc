@@ -6,94 +6,77 @@
 #include <time.h>				// setting srand seed
 #include <SFML/Graphics.hpp>	// drawing graphics
 
-int random(int s) { return (rand() % s); }
+typedef sf::CircleShape Vertex;
+typedef std::vector<Vertex> Vertices;
+
+unsigned random(unsigned s) { return (rand() % s); }
 
 class chaosworld {
     public:
-        chaosworld(int v, int f);
-        void draw();
-    private:
-        std::vector<sf::CircleShape> vertices_create(int v);
-        sf::CircleShape tracer_create();
-        void tracer_update();
-    private:
-        int FRAME, FRAME_STOP;
-        sf::CircleShape tracer;
-        std::vector<sf::CircleShape> vertices, tracer_history;
-        static const int SIZE_X = 800, SIZE_Y = 600, BORDER = 50; // window settings
-};
-
-chaosworld::chaosworld(int v, int f) {
-    FRAME = 0;
-    FRAME_STOP = f;
-    srand (time(NULL));
-    vertices = vertices_create(v);
-    tracer = tracer_create();
-}
-
-// returns a randomly positioned point
-sf::CircleShape chaosworld::tracer_create() {
-    sf::CircleShape t(1);
-    t.setFillColor(sf::Color(255, 255, 255));   // white
-    t.setPosition(random(SIZE_X-BORDER), random(SIZE_Y-BORDER));
-    return t;
-}
-
-// returns vector containing v randomly positioned vertices
-std::vector<sf::CircleShape> chaosworld::vertices_create(int v) {
-    std::vector<sf::CircleShape> output;
-    for (; v > 0; --v) {
-        sf::CircleShape shape(5);
-        shape.setFillColor(sf::Color(255, 0, 255)); // purple
-        shape.setPosition(random(SIZE_X-BORDER), random(SIZE_Y-BORDER));
-        output.push_back(shape);
-    }
-    return output;
-}
-
-// calculates and updates new tracer position
-void chaosworld::tracer_update() {
-    sf::Vector2f origin = tracer.getPosition();
-    sf::Vector2f target = vertices.at(random(vertices.size())).getPosition();
-    // calculate new tracer
-    int x = ( target.x + origin.x ) / 2;
-    int y = ( target.y + origin.y ) / 2;
-
-    tracer_history.push_back(tracer);   // save old tracer
-    tracer.setPosition(x, y);
-}
-
-// creates window and starts game
-void chaosworld::draw() {
-    // draw frame counter
-    sf::Text frametxt;
-    sf::Font font;
-    font.loadFromFile("Ubuntu-C.ttf");
-    frametxt.setFont(font);
-    frametxt.setCharacterSize(20);
-    frametxt.setPosition(SIZE_X-BORDER, 10);
-
-    // draw window
-    sf::RenderWindow window(sf::VideoMode(SIZE_X, SIZE_Y), "Chaos Game");
-    while (window.isOpen()) {
-    /* close window request check */
-        sf::Event event;
-        while (window.pollEvent(event))
-            if (event.type == sf::Event::Closed) window.close();
-    /* draw objects in window */
-        window.clear(sf::Color::Black);
-        for (auto i : vertices) window.draw(i);
-        for (auto i : tracer_history) window.draw(i);
-        window.draw(frametxt);
-    /* update world */
-        if (FRAME_STOP == 0 || FRAME < FRAME_STOP) {
-            window.draw(tracer);
-            tracer_update();
-            frametxt.setString(std::to_string(++FRAME));
+        chaosworld(unsigned v, unsigned f) : FRAME(0), FRAME_STOP(f) {
+            srand(time(NULL));
+            vertices = vertices_new(v);
+            tracer = vertex_new(1, sf::Color::White);
         }
-        window.display();
-    }
-}
+        void run() {
+            // draw frame counter
+            sf::Text frametxt; sf::Font font;
+            font.loadFromFile("Ubuntu-C.ttf");
+            frametxt.setFont(font);
+            frametxt.setCharacterSize(20);
+            frametxt.setPosition(SIZE_X-BORDER, 10);
+
+            // draw window
+            sf::RenderWindow window(sf::VideoMode(SIZE_X, SIZE_Y), "Chaos Game");
+            while (window.isOpen()) {
+            /* close window request check */
+                sf::Event event;
+                while (window.pollEvent(event))
+                    if (event.type == sf::Event::Closed) window.close();
+            /* draw objects in window */
+                window.clear(sf::Color::Black);
+                for (auto i : vertices) window.draw(i);
+                for (auto i : tracer_history) window.draw(i);
+                window.draw(frametxt);
+            /* update world */
+                if (FRAME_STOP == 0 || FRAME < FRAME_STOP) {
+                    window.draw(tracer);
+                    tracer_update();
+                    frametxt.setString(std::to_string(++FRAME));
+                }
+                window.display();
+            }
+        }
+    private:
+        const Vertex vertex_new(unsigned size, const sf::Color& color) const {
+            Vertex v(size);
+            v.setFillColor(color);
+            v.setPosition(random(SIZE_X-BORDER), random(SIZE_Y-BORDER));
+            return v;
+        }
+        const Vertices vertices_new(unsigned v) const {
+            Vertices output;
+            for (; v > 0; --v)
+                output.push_back(vertex_new(5, sf::Color(255, 0, 255))); // purple
+
+            return output;
+        }
+        void tracer_update() {
+            sf::Vector2f origin = tracer.getPosition();
+            sf::Vector2f target = vertices.at(random(vertices.size())).getPosition();
+            // calculate new tracer
+            int x = ( target.x + origin.x ) / 2;
+            int y = ( target.y + origin.y ) / 2;
+
+            tracer_history.push_back(tracer);
+            tracer.setPosition(x, y);
+        }
+    private:
+        unsigned FRAME, FRAME_STOP;
+        Vertex tracer;
+        Vertices vertices, tracer_history;
+        static const unsigned SIZE_X = 800, SIZE_Y = 600, BORDER = 50; // window settings
+};
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
@@ -101,7 +84,7 @@ int main(int argc, char* argv[]) {
         return 1;  
     }
 
-    int v, f;
+    unsigned v, f;
     std::istringstream ss1(argv[1]), ss2(argv[2]);
     if ( !(ss1 >> v) || v < 0 ) {
         std::cout << "Invalid #vertices." << '\n';
@@ -113,7 +96,7 @@ int main(int argc, char* argv[]) {
     }
 
     chaosworld c(v, f);
-    c.draw();
+    c.run();
 
     return 0;
 }
